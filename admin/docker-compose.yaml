@@ -1,0 +1,50 @@
+version: '3'
+services:
+
+  mirror:
+    image: registry:2
+    restart: on-failure
+    ports:
+      - 5000:5000
+    environment:
+      REGISTRY_PROXY_REMOTEURL: https://registry-1.docker.io
+    volumes:
+      - ./registry:/var/lib/registry
+
+  cadvisor:
+    image: vimagick/cadvisor
+    restart: always
+    ports:
+      - 8089:8080
+    volumes:
+      - //:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    
+  visulizer:
+    image: manomarks/visualizer
+    restart: on-failure
+    ports:
+      - 8090:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    # deploy:
+    #   placement:
+    #     constraints:
+    #       - node.role == manager
+
+  portainer:
+    image: portainer/portainer
+    restart: on-failure
+    ports:
+      - 8091:9000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    # command:
+    #   - -H
+    #   - unix:///var/run/docker.sock
+    # deploy:
+    #   placement:
+    #     constraints:
+    #       - node.role == manager

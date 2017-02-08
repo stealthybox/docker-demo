@@ -1,0 +1,25 @@
+version: '3'
+services:
+
+  m1: &minio_template
+    image: minio/minio
+    networks:
+      - replication
+    ports:
+      - 9000
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+    command:
+      - server
+      - http://m1/myexport
+      - http://m2/myexport
+      - http://m3/myexport
+      - http://m4/myexport
+
+  m2: *minio_template
+  m3: *minio_template
+  m4: *minio_template
+
+networks:
+  replication:

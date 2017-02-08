@@ -1,0 +1,57 @@
+version: '3'
+services:
+
+  busy:
+    image: busybox
+    networks: [ frontend ]
+    command:
+      - sleep
+      - '10000'
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == moby
+
+  stealthy:
+    image: emilevauge/whoami
+    networks: [ frontend ]
+    deploy:
+      labels:
+        traefik.port: 80
+        # traefik.backend: stealthy
+        traefik.frontend.rule: PathPrefix:/stealthy
+
+  box:
+    image: emilevauge/whoami
+    networks: [ frontend ]
+    ports:
+      - 800:80
+    deploy:
+      replicas: 4
+      labels:
+        traefik.port: 80
+        # traefik.backend: box
+        traefik.frontend.rule: PathPrefix:/box
+
+  traefik:
+    image: containous/traefik:experimental
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
+    networks: [ frontend ]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command:
+      # - --docker
+      # - --docker.watch
+      - --docker.swarmmode
+      # - --docker.domain=traefik
+      - --web
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+networks:
+  frontend:

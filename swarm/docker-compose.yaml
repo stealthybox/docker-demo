@@ -1,0 +1,34 @@
+# Docker stack for playing with swarm in swarm
+  # export MANAGER_TOKEN=`docker swarm join-token -q manager`; \
+  # export WORKER_TOKEN=`docker swarm join-token -q worker`; \
+  # export HOST_IP=`docker info -f "{{.Swarm.NodeAddr}}"`
+version: '3'
+services:
+
+  manager:
+    image: docker:1.13.0-dind
+    privileged: true
+    ports: [ 2375 ]
+    environment:
+      token: ${MANAGER_TOKEN}
+    entrypoint: &script
+      - sh
+      - -c
+      - |
+        dockerd-entrypoint.sh --storage-driver=overlay2 --registry-mirror=http://${HOST_IP}:5000 &
+        trap "killall dockerd" INT
+        timeout=10
+        until docker info || [ $$timeout -le 0 ]
+          do sleep 0.2
+          let timeout = $$timeout - 0.2
+        done
+        docker swarm join --token $${token} ${HOST_IP}:2377
+        wait
+
+  worker:
+    image: docker:1.13.0-dind
+    privileged: true
+    ports: [ 2375 ]
+    environment:
+      token: ${WORKER_TOKEN}
+    entrypoint: *script
