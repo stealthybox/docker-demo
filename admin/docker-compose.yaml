@@ -22,7 +22,7 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
     
-  visulizer:
+  visualizer:
     image: manomarks/visualizer
     restart: on-failure
     ports:
