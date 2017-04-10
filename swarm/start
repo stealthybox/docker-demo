@@ -3,6 +3,7 @@ docker swarm init | grep "Swarm initialized"
 
 export MANAGER_TOKEN=$( docker swarm join-token -q manager )
 export WORKER_TOKEN=$( docker swarm join-token -q worker )
+export DOCKER_VERSION=$( docker version -f '{{.Server.Version}}' )
 export HOST_IP=$( docker info -f '{{.Swarm.NodeAddr}}' )
 
 echo
@@ -11,4 +12,5 @@ echo "  ${MANAGER_TOKEN%-*}-"
 echo "    manager  ${MANAGER_TOKEN##*-}"
 echo "    worker   ${WORKER_TOKEN##*-}"
 echo host
+echo "  ${DOCKER_VERSION}"
 echo "  ${HOST_IP}"

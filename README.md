@@ -5,7 +5,7 @@ There is automation here for running a swarm with multiple hosts on a single mac
 There are also several stack files which serve as a starting point for understanding the scheduler and playing with different use-cases.
 
 
-# Running a Swarm in Containers
+# Run a Swarm in Containers
 ```bash
 cd swarm
 source start
@@ -31,7 +31,6 @@ For speed, configure your docker engine to use:
 ]
 ```
 When you're done, `cd swarm && ./kill`.
-You may need to run `./kill` more than once.
 
 ## Some Helpful Commands
 ```
@@ -44,6 +43,9 @@ docker stack --help
 docker service ls
 docker service --help
 docker service inspect <SERVICE> --pretty
+
+# list all node's engine labels:
+for nid in `docker node Wls -q`; do docker node inspect $nid -f "{{.Description.Engine.Labels}}"; done
 ```
 
 ## How it Works

@@ -1,7 +1,6 @@
 #!/bin/sh
 docker node demote $( docker node ls | grep -i reachable | cut -d' ' -f1 )
-docker node rm $( docker node ls -q | grep -v $(docker info -f {{.Swarm.NodeID}}) )
-docker-compose kill
-docker-compose rm -f
+docker node rm -f $( docker node ls -q | grep -v $(docker info -f {{.Swarm.NodeID}}) )
+docker-compose down
 
 # docker swarm leave -f

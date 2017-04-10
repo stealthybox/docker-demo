@@ -1,12 +1,13 @@
 # Docker stack for playing with swarm in swarm
   # export MANAGER_TOKEN=`docker swarm join-token -q manager`; \
   # export WORKER_TOKEN=`docker swarm join-token -q worker`; \
+  # export DOCKER_VERSION=$( docker version -f '{{.Server.Version}}' )
   # export HOST_IP=`docker info -f "{{.Swarm.NodeAddr}}"`
 version: '3'
 services:
 
   manager:
-    image: docker:1.13.0-dind
+    image: docker:${DOCKER_VERSION:-17}-dind
     privileged: true
     ports: [ 2375 ]
     environment:
@@ -28,7 +29,7 @@ services:
         wait
 
   worker:
-    image: docker:1.13.0-dind
+    image: docker:${DOCKER_VERSION:-17}-dind
     privileged: true
     ports: [ 2375 ]
     environment:
@@ -38,7 +39,7 @@ services:
 
   # example of using labels to classify mock infrastructure from a target environemnt
   gcp-worker:
-    image: docker:1.13.0-dind
+    image: docker:${DOCKER_VERSION:-17}-dind
     privileged: true
     ports: [ 2375 ]
     environment:
