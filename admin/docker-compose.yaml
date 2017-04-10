@@ -8,17 +8,25 @@ services:
       - 5000:5000
     environment:
       REGISTRY_PROXY_REMOTEURL: https://registry-1.docker.io
-    volumes:
-      - ./registry:/var/lib/registry
+  #   volumes:
+  #     - ./registry:/var/lib/registry
 
+  private_reg:
+    image: registry:2
+    restart: on-failure
+    ports:
+      - 5001:5000
+    # volumes:
+    #   - ./registry:/var/lib/registry
+    
   cadvisor:
     image: vimagick/cadvisor
     restart: always
     ports:
       - 8089:8080
     volumes:
-      - //:/rootfs:ro
-      - /var/run:/var/run:rw
+      - /:/rootfs:ro
+      - /var/run:/var/run
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
     
@@ -29,11 +37,16 @@ services:
       - 8090:8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    # deploy:
-    #   placement:
-    #     constraints:
-    #       - node.role == manager
-
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      # labels:
+      #   traefik.port: 8080
+      #   traefik.frontend.rule: PathPrefix:/
+    # networks: [ routing_frontend ]
+    ### start the routing stack and uncomment this to have viz be the main page for localhost
+    
   portainer:
     image: portainer/portainer
     restart: on-failure
@@ -41,10 +54,11 @@ services:
       - 8091:9000
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    # command:
-    #   - -H
-    #   - unix:///var/run/docker.sock
-    # deploy:
-    #   placement:
-    #     constraints:
-    #       - node.role == manager
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+networks:
+  routing_frontend:
+    external: true
