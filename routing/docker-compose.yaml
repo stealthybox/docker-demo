@@ -1,6 +1,7 @@
 version: '3'
 services:
 
+  # you can exec into this container and probe the overlay net
   busy:
     image: busybox
     networks: [ frontend ]
@@ -18,23 +19,21 @@ services:
     deploy:
       labels:
         traefik.port: 80
-        # traefik.backend: stealthy
         traefik.frontend.rule: PathPrefix:/stealthy
 
   box:
     image: emilevauge/whoami
     networks: [ frontend ]
-    ports:
-      - 800:80
+    # ports:
+    #   - 800:80
     deploy:
-      replicas: 4
+      replicas: 3
       labels:
         traefik.port: 80
-        # traefik.backend: box
         traefik.frontend.rule: PathPrefix:/box
 
   traefik:
-    image: containous/traefik:experimental
+    image: traefik:morbier
     ports:
       - 80:80
       - 443:443
@@ -48,6 +47,7 @@ services:
       - --docker.swarmmode
       # - --docker.domain=traefik
       - --web
+      - --logLevel=DEBUG
     deploy:
       placement:
         constraints:
