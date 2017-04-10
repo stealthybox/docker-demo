@@ -19,7 +19,7 @@ docker stack up admin -c ../admin/docker-compose.yaml
 In a few moments, you should see a visualization @ [localhost:8090](http://localhost:8090) showing your host and any swarm services.
 ```bash
 docker-compose up -d worker
-# you should see 1 worker node join
+# you should see a worker node join the swarm
 docker-compose scale worker=4
 # 3 more should join in a few seconds
 ```
@@ -53,7 +53,7 @@ The `start` script:
 - exports the `{{.Swarm.NodeAddr}}` as `$HOST_IP`
 
 `swarm/docker-compose.yaml` depends on these env vars.
-It contains two services for managers and workers.
+It contains services for managers and workers.
 These services run **docker in docker** (`dind`) as priviledged containers on the host.
 The `entrypoint` is overridden to run an inline shell script that:
 - starts the container's `dockerd` with overlay2 and the `admin_mirror`

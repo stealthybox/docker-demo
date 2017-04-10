@@ -36,6 +36,7 @@ services:
       opts: --label location=denver
     entrypoint: *script
 
+  # example of using labels to classify mock infrastructure from a target environemnt
   gcp-worker:
     image: docker:1.13.0-dind
     privileged: true
