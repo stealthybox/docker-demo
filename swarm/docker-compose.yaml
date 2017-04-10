@@ -11,16 +11,18 @@ services:
     ports: [ 2375 ]
     environment:
       token: ${MANAGER_TOKEN}
+      opts: --label location=denver
     entrypoint: &script
       - sh
       - -c
       - |
-        dockerd-entrypoint.sh --storage-driver=overlay2 --registry-mirror=http://${HOST_IP}:5000 &
+        set -e
+        dockerd-entrypoint.sh $${opts} --storage-driver=overlay2 --registry-mirror=http://${HOST_IP}:5000 &
         trap "killall dockerd" INT
-        timeout=10
+        timeout=100
         until docker info || [ $$timeout -le 0 ]
-          do sleep 0.2
-          let timeout = $$timeout - 0.2
+          do sleep 0.1
+          timeout=`expr $${timeout} - 1`
         done
         docker swarm join --token $${token} ${HOST_IP}:2377
         wait
@@ -31,4 +33,14 @@ services:
     ports: [ 2375 ]
     environment:
       token: ${WORKER_TOKEN}
+      opts: --label location=denver
+    entrypoint: *script
+
+  gcp-worker:
+    image: docker:1.13.0-dind
+    privileged: true
+    ports: [ 2375 ]
+    environment:
+      token: ${WORKER_TOKEN}
+      opts: --label location=us-west1 --label provider=gcp --label public=true
     entrypoint: *script

@@ -31,6 +31,7 @@ For speed, configure your docker engine to use:
 ]
 ```
 When you're done, `cd swarm && ./kill`.
+You may need to run `./kill` more than once.
 
 ## Some Helpful Commands
 ```
@@ -55,11 +56,13 @@ The `start` script:
 It contains two services for managers and workers.
 These services run **docker in docker** (`dind`) as priviledged containers on the host.
 The `entrypoint` is overridden to run an inline shell script that:
-- starts the container's `dockerd`
+- starts the container's `dockerd` with overlay2 and the `admin_mirror`
 - traps interrupts
 - waits until `docker info` succeeds
 - joins the host's swarm with the service's `$TOKEN`
 
+You can classify nodes by adding `--label` flags to the `$opts`.
+These are engine labels which shouldn't be confused with swarm node labels.
 
 # Using Stacks
 Stack files allow you to use the [docker-compose schema](https://docs.docker.com/compose/compose-file/) to declare a desired state for many related services.
