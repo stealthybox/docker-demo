@@ -33,21 +33,20 @@ services:
         traefik.frontend.rule: PathPrefix:/box
 
   traefik:
-    image: traefik:morbier
+    image: traefik
     ports:
       - 80:80
-      - 443:443
       - 8080:8080
     networks: [ frontend ]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     command:
-      # - --docker
-      # - --docker.watch
-      - --docker.swarmmode
-      # - --docker.domain=traefik
       - --web
       - --logLevel=DEBUG
+      - --docker
+      - --docker.swarmmode
+      # - --docker.watch
+      # - --docker.domain=traefik
     deploy:
       placement:
         constraints:
