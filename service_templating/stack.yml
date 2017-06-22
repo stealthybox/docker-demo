@@ -1,0 +1,24 @@
+# see https://github.com/moby/moby/issues/30770#issuecomment-277874145 for a volumes workaround
+version: '3.2'
+
+services:
+  hello:
+    image: alpine
+    hostname: 'hello-{{.Task.Slot}}'
+    environment:
+      SLOT: '{{.Task.Slot}}'
+      SERVICE: '{{.Service.Name}}'
+      STACK: '{{index .Service.Labels "com.docker.stack.namespace"}}'
+    command:
+    - sh
+    - -c
+    - |
+      echo hi! im $${HOSTNAME}, task-$${SLOT} of $${SERVICE} in stack: $${STACK}
+      ls -l /data
+      sleep 1000
+    volumes:
+    - type: bind
+      source: ./{{.Task.Slot}}
+      target: /data
+    deploy:
+      replicas: 3
