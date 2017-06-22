@@ -1,0 +1,54 @@
+version: '3.1'
+services:
+
+  stealthy:
+    image: emilevauge/whoami
+    networks: [ proxy ]
+    deploy:
+      replicas: 4
+      labels:
+        traefik.port: 80
+        traefik.frontend.rule: PathPrefix:/stealthy
+
+  proxy:
+    image: traefik
+    command:
+      - --web
+      - --logLevel=DEBUG
+      - --docker
+      - --docker.swarmmode
+      - --defaultentrypoints=https,http
+      - --entryPoints=Name:http  Address::80  Redirect.EntryPoint:https
+      - --entryPoints=Name:https Address::443 TLS:run/secrets/localtest.me.pem,run/secrets/localtest.me.key;run/secrets/localhost.pem,run/secrets/localhost.key
+    networks:
+      - proxy
+    ports:
+      - 80:80
+      - 443:443
+      # - 8080:8080 # for dashboard
+    deploy:
+      labels:
+        traefik.port: 8080
+        traefik.docker.network: ssl_proxy
+        traefik.frontend.rule: Host:traefik.localtest.me
+      placement:
+        constraints:
+          - node.role == manager
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    secrets:
+      - localtest.me.key
+      - localtest.me.pem
+      - localhost.key
+      - localhost.pem
+secrets:
+  localtest.me.key:
+    external: true
+  localtest.me.pem:
+    external: true
+  localhost.key:
+    external: true
+  localhost.pem:
+    external: true
+networks:
+  proxy:
