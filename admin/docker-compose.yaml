@@ -31,7 +31,7 @@ services:
       - /var/lib/docker/:/var/lib/docker:ro
     
   visualizer:
-    image: manomarks/visualizer
+    image: dockersamples/visualizer
     restart: on-failure
     ports:
       - 8090:8080
